@@ -1,74 +1,89 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState(location.state?.message || '');
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState(
+    location.state?.message || ""
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (successMsg) {
-      const timer = setTimeout(() => setSuccessMsg(''), 4000);
+      const timer = setTimeout(() => setSuccessMsg(""), 4000);
       return () => clearTimeout(timer);
     }
   }, [successMsg]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccessMsg('');
+
+    console.log("========== LOGIN START ==========");
+    console.log("FORM DATA:", formData);
+
+    setError("");
+    setSuccessMsg("");
 
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
+    try {
       const response = await axios.post(
-        'https://assessment-project-wpc9.onrender.com/api/auth/login',
-        formData
+        "https://assessment-project-wpc9.onrender.com/api/auth/login",
+        {
+          email: formData.email,
+          password: formData.password,
+        }
       );
 
-      console.log("LOGIN RESPONSE:", response.data);
+      console.log("API RESPONSE:", response.data);
 
-      const { token, user } = response.data;
+      const token = response.data.token;
+      const user = response.data.user;
 
-      // safety check
       if (!token) {
-        setError('Login failed: token missing');
+        setError("Token not received");
         return;
       }
 
-      // store auth data
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      // redirect
-      navigate('/dashboard');
+      console.log("TOKEN SAVED:", localStorage.getItem("token"));
+      console.log("USER SAVED:", localStorage.getItem("user"));
 
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      setError(
-        err.response?.data?.message || 'Invalid email or password'
-      );
+      console.log("LOGIN ERROR:", err);
+
+      if (err.response) {
+        console.log("STATUS:", err.response.status);
+        console.log("DATA:", err.response.data);
+
+        setError(err.response.data.message || "Login failed");
+      } else {
+        setError("Cannot connect to server");
+      }
     } finally {
       setLoading(false);
     }
@@ -79,12 +94,13 @@ const Login = () => {
       <div className="auth-card">
         <h2>Welcome Back</h2>
 
-        {successMsg && (
-          <p className="success-text">{successMsg}</p>
-        )}
+        {successMsg && <p className="success-text">{successMsg}</p>}
 
         {error && (
-          <p className="error-text" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <p
+            className="error-text"
+            style={{ textAlign: "center", marginBottom: "1rem" }}
+          >
             {error}
           </p>
         )}
@@ -114,15 +130,21 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="btn" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log In'}
+          <button className="btn" type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--primary)' }}>
-            Sign up
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "1.5rem",
+            color: "var(--text-muted)",
+          }}
+        >
+          Don't have an account?{" "}
+          <Link to="/register" style={{ color: "var(--primary)" }}>
+            Sign Up
           </Link>
         </p>
       </div>
