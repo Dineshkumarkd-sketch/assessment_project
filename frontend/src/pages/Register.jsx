@@ -4,49 +4,75 @@ import axios from 'axios';
 
 const Register = () => {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const validateForm = () => {
+    if (!formData.name || !formData.email || !formData.password) {
+      setError('All fields are required');
+      return false;
+    }
+
     if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       setError('Please enter a valid email address');
       return false;
     }
+
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       return false;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
     }
+
     return true;
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 🔥 prevents GET request
     setError('');
-    
+
+    console.log("REGISTER CLICKED"); // debug
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
+
     try {
-      await axios.post('https://assessment-project-wpc9.onrender.com/api/auth/register', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
+      const response = await axios.post(
+        'https://assessment-project-wpc9.onrender.com/api/auth/register',
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        }
+      );
+
+      console.log("REGISTER RESPONSE:", response.data);
+
+      // success → redirect login page
+      navigate('/login', {
+        state: { message: 'Registration successful. Please log in.' }
       });
-      navigate('/login', { state: { message: 'Registration successful. Please log in.' } });
+
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to register. Please try again.');
     } finally {
@@ -58,7 +84,13 @@ const Register = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create an Account</h2>
-        {error && <p className="error-text" style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</p>}
+
+        {error && (
+          <p className="error-text" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Name</label>
@@ -71,6 +103,7 @@ const Register = () => {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Email Address</label>
             <input
@@ -82,6 +115,7 @@ const Register = () => {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Password</label>
             <input
@@ -93,6 +127,7 @@ const Register = () => {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Confirm Password</label>
             <input
@@ -104,12 +139,17 @@ const Register = () => {
               required
             />
           </div>
+
           <button type="submit" className="btn" disabled={loading}>
             {loading ? 'Registering...' : 'Sign Up'}
           </button>
         </form>
+
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--primary)' }}>Log in</Link>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: 'var(--primary)' }}>
+            Log in
+          </Link>
         </p>
       </div>
     </div>
