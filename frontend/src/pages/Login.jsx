@@ -66,13 +66,13 @@ const Login = () => {
         return;
       }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem('token', token);
+localStorage.setItem('user', JSON.stringify(user));
 
-      console.log("TOKEN SAVED:", localStorage.getItem("token"));
-      console.log("USER SAVED:", localStorage.getItem("user"));
+console.log("TOKEN SAVED:", localStorage.getItem("token"));
+console.log("USER SAVED:", localStorage.getItem("user"));
 
-      navigate("/dashboard");
+navigate('/dashboard');
     } catch (err) {
       console.log("LOGIN ERROR:", err);
 

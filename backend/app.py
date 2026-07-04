@@ -2,32 +2,39 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+
 from database import init_db
 from routes import api
 
-# 🔥 FORCE LOAD .env
-load_dotenv(dotenv_path=".env")
+# Load environment variables
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+
     CORS(app)
 
-    mongo_uri = os.environ.get("MONGODB_URI")
-    print("MONGO_URI =", mongo_uri)
+    # MongoDB
+    app.config["MONGO_URI"] = os.environ.get("MONGODB_URI")
 
-    # ❌ STOP CRASH
-    if not mongo_uri:
-        raise Exception("MONGODB_URI not found in environment")
+    # Secret Key
+    app.config["SECRET_KEY"] = os.environ.get(
+        "SECRET_KEY",
+        "change-this-to-a-random"
+    )
 
-    app.config["MONGO_URI"] = mongo_uri
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+    print("MONGO_URI =", app.config["MONGO_URI"])
+    print("SECRET_KEY Loaded =", app.config["SECRET_KEY"])
+
+    if not app.config["MONGO_URI"]:
+        raise Exception("MONGODB_URI not found")
 
     init_db(app)
 
     app.register_blueprint(api, url_prefix="/api")
 
     @app.route("/")
-    def index():
+    def home():
         return "API Running"
 
     return app

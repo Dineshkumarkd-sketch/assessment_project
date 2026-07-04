@@ -33,9 +33,10 @@ const Dashboard = () => {
       setError('Failed to fetch products. Please try again.');
 
       if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-      }
+  console.log("401 Unauthorized");
+  console.log("Token:", localStorage.getItem("token"));
+  setError("Unauthorized - Check backend token verification");
+}
     } finally {
       setLoading(false);
     }
