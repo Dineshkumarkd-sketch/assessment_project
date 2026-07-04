@@ -17,16 +17,16 @@ const Login = () => {
 
   useEffect(() => {
     if (successMsg) {
-      const timer = setTimeout(() => setSuccessMsg(''), 5000);
+      const timer = setTimeout(() => setSuccessMsg(''), 4000);
       return () => clearTimeout(timer);
     }
   }, [successMsg]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -39,9 +39,9 @@ const Login = () => {
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const response = await axios.post(
         'https://assessment-project-wpc9.onrender.com/api/auth/login',
         formData
@@ -49,22 +49,26 @@ const Login = () => {
 
       console.log("LOGIN RESPONSE:", response.data);
 
-      const token = response.data?.token;
+      const { token, user } = response.data;
 
+      // safety check
       if (!token) {
-        setError('Login failed: Token not received from server');
+        setError('Login failed: token missing');
         return;
       }
 
-      // Save token
+      // store auth data
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data.user || {}));
+      localStorage.setItem('user', JSON.stringify(user));
 
-      // Redirect
+      // redirect
       navigate('/dashboard');
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password');
+      console.error(err);
+      setError(
+        err.response?.data?.message || 'Invalid email or password'
+      );
     } finally {
       setLoading(false);
     }
@@ -75,7 +79,10 @@ const Login = () => {
       <div className="auth-card">
         <h2>Welcome Back</h2>
 
-        {successMsg && <p className="success-text">{successMsg}</p>}
+        {successMsg && (
+          <p className="success-text">{successMsg}</p>
+        )}
+
         {error && (
           <p className="error-text" style={{ textAlign: 'center', marginBottom: '1rem' }}>
             {error}
