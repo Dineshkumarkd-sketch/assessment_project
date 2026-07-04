@@ -5,7 +5,8 @@ import os
 from database import init_db
 from routes import api
 
-load_dotenv()
+# 🔥 FORCE LOAD .env
+load_dotenv(dotenv_path=".env")
 
 def create_app():
     app = Flask(__name__)
@@ -14,8 +15,12 @@ def create_app():
     mongo_uri = os.environ.get("MONGODB_URI")
     print("MONGO_URI =", mongo_uri)
 
+    # ❌ STOP CRASH
+    if not mongo_uri:
+        raise Exception("MONGODB_URI not found in environment")
+
     app.config["MONGO_URI"] = mongo_uri
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
     init_db(app)
 
