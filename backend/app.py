@@ -5,21 +5,23 @@ import os
 from database import init_db
 from routes import api
 
-# Load environment variables
 load_dotenv()
 
 def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    # Configuration
-    app.config["MONGO_URI"] = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/assessment_db")
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "super-secret-key-change-in-production")
+    app.config["MONGO_URI"] = os.environ.get(
+        "MONGODB_URI",
+        "mongodb://localhost:27017/assessment_db"
+    )
 
-    # Initialize MongoDB connection
-    init_db(app)
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
-    # Register blueprints
+    # ✅ FIX HERE
+    with app.app_context():
+        init_db(app)
+
     app.register_blueprint(api, url_prefix='/api')
 
     @app.route('/')
@@ -28,6 +30,7 @@ def create_app():
 
     return app
 
+
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, use_reloader=False)
