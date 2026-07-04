@@ -41,7 +41,7 @@ const Register = () => {
     
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/register', {
+      await axios.post('https://assessment-project-wpc9.onrender.com/api/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

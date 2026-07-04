@@ -36,10 +36,10 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       
       if (product) {
         // Update existing
-        await axios.put(`http://localhost:5000/api/products/${product._id}`, formData, config);
+        await axios.put(`https://assessment-project-wpc9.onrender.com/api/products/${product._id}`, formData, config);
       } else {
         // Create new
-        await axios.post('http://localhost:5000/api/products', formData, config);
+        await axios.post('https://assessment-project-wpc9.onrender.com/api/products', formData, config);
       }
       onSave(); // Trigger refresh in parent
     } catch (err) {
